@@ -1,6 +1,7 @@
 import express, { type Request, type Response } from "express";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { getServer } from "./server.js";
+import { config } from "./config.js";
 
 const app = express();
 app.use(express.json());
@@ -62,9 +63,8 @@ app.delete("/mcp", async (req: Request, res: Response) => {
 });
 
 // Start the server
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`MCP Stateless Streamable HTTP Server listening on port ${PORT}`);
+app.listen(config.MCP_HTTP_PORT, () => {
+  console.log(`MCP Stateless Streamable HTTP Server listening on port ${config.MCP_HTTP_PORT}`);
 });
 
 // Handle server shutdown
