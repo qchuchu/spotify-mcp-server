@@ -1,0 +1,36 @@
+{
+  "name": "mcp-server-template",
+  "version": "0.0.1",
+  "private": true,
+  "main": "dist/index.js",
+  "description": "Alpic MCP Server Template",
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "mcp-server-template": "./dist/index.js"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('dist/index.js', '755')\"",
+    "dev": "tsx watch --env-file=.env src/index.ts",
+    "inspector": "npx @modelcontextprotocol/inspector"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "zod": "^3.25.51"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.30",
+    "eslint-config-prettier": "^10.0.1",
+    "eslint-plugin-prettier": "^5.2.2",
+    "prettier": "^3.5.3",
+    "prettier-eslint": "^16.4.2",
+    "tsx": "^4.19.4",
+    "typescript-eslint": "^8.32.0"
+  }
+}
