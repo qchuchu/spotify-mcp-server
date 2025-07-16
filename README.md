@@ -9,7 +9,6 @@ This template provides a foundation for creating MCP servers that can communicat
 ## Prerequisites
 
 - Node.js 22+ (see `.nvmrc` for exact version)
-- pnpm
 
 ## Installation
 
@@ -23,7 +22,7 @@ cd mcp-server-template
 2. Install dependencies:
 
 ```bash
-pnpm install
+npm install
 ```
 
 ## Usage
@@ -33,7 +32,7 @@ pnpm install
 Start the development server with hot-reload:
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 The server will start on `http://localhost:3000` and automatically restart when you make changes to the source code.
@@ -43,7 +42,7 @@ The server will start on `http://localhost:3000` and automatically restart when 
 Build the project for production:
 
 ```bash
-pnpm build
+npm run build
 ```
 
 The compiled JavaScript will be output to the `dist/` directory.
@@ -53,7 +52,7 @@ The compiled JavaScript will be output to the `dist/` directory.
 Use the MCP inspector tool to test your server:
 
 ```bash
-pnpm inspector
+npm run inspector
 ```
 
 ## API Endpoints
