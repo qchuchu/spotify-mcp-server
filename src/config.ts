@@ -4,7 +4,7 @@ import { z } from "zod";
 dotenv.config();
 
 const EnvSchema = z.object({
-  MCP_HTTP_PORT: z.coerce.number().int().positive().default(3010),
+  MCP_HTTP_PORT: z.coerce.number().int().positive().default(3000),
 });
 
 const parsedEnv = EnvSchema.safeParse(process.env);
