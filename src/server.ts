@@ -66,5 +66,6 @@ export const getServer = (): McpServer => {
       };
     },
   );
+
   return server;
 };
