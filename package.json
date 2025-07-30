@@ -12,7 +12,7 @@
   },
   "type": "module",
   "scripts": {
-    "build": "tsc && node -e \"require('fs').chmodSync('dist/index.js', '755')\"",
+    "build": "tsc",
     "dev": "tsx watch --env-file=.env src/index.ts",
     "inspector": "npx @modelcontextprotocol/inspector"
   },
