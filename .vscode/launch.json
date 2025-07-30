@@ -9,7 +9,7 @@
       "console": "integratedTerminal",
       "sourceMaps": true,
       "outFiles": ["${workspaceFolder}/dist/**/*.js"],
-      "preLaunchTask": "pnpm: build",
+      "preLaunchTask": "npm: build",
       "stopOnEntry": false
     }
   ]

@@ -3,11 +3,11 @@
   "tasks": [
     {
       "type": "shell",
-      "command": "pnpm",
+      "command": "npm",
       "args": ["build"],
       "group": "build",
-      "label": "pnpm: build",
-      "detail": "pnpm build",
+      "label": "npm: build",
+      "detail": "npm build",
       "problemMatcher": ["$tsc"]
     }
   ]
