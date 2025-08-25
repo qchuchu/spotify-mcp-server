@@ -8,7 +8,7 @@ export const getServer = (): McpServer => {
       name: "mcp-server-template",
       version: "0.0.1",
     },
-    { capabilities: { logging: {} } },
+    { capabilities: {} },
   );
 
   // Register a simple prompt
