@@ -6,14 +6,14 @@ import { getServer } from "./server.js";
 import { config } from "./config.js";
 import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
-import { authServerMetadataHandlerClerk, protectedResourceHandlerClerk } from "@clerk/mcp-tools/express";
+import { authServerMetadataHandlerClerk, mcpAuthClerk, protectedResourceHandlerClerk } from "@clerk/mcp-tools/express";
 
 const app = express();
 app.use(cors({ exposedHeaders: ["WWW-Authenticate"] }));
 app.use(clerkMiddleware());
 app.use(express.json());
 
-app.post("/mcp", async (req: Request, res: Response) => {
+app.post("/mcp", mcpAuthClerk, async (req: Request, res: Response) => {
   try {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
@@ -57,7 +57,7 @@ app.get("/mcp", async (req: Request, res: Response) => {
 });
 
 app.delete("/mcp", async (req: Request, res: Response) => {
-  console.log("Received GET MCP request");
+  console.log("Received DELETE MCP request");
   res.writeHead(405).end(
     JSON.stringify({
       jsonrpc: "2.0",
