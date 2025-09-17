@@ -73,7 +73,7 @@ app.delete("/mcp", async (req: Request, res: Response) => {
 app.get(
   "/.well-known/oauth-protected-resource/mcp",
   // Specify the scopes that your MCP server needs here
-  protectedResourceHandlerClerk({ scopes_supported: ["email", "profile"] }),
+  protectedResourceHandlerClerk(),
 );
 // This is still often needed for clients that implement the older mcp spec
 app.get("/.well-known/oauth-authorization-server", authServerMetadataHandlerClerk);
