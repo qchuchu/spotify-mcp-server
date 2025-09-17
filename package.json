@@ -18,21 +18,25 @@
     "inspector": "mcp-inspector http://localhost:3000/mcp"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1",
-    "dotenv": "^16.5.0",
+    "@clerk/express": "^1.7.31",
+    "@clerk/mcp-tools": "^0.3.1",
+    "@modelcontextprotocol/sdk": "^1.18.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "zod": "^3.25.51"
+    "zod": "^4.1.8"
   },
   "devDependencies": {
-    "@eslint/js": "^9.18.0",
-    "@modelcontextprotocol/inspector": "^0.16.2",
+    "@eslint/js": "^9.35.0",
+    "@modelcontextprotocol/inspector": "^0.16.7",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "@types/node": "^22.15.30",
-    "eslint-config-prettier": "^10.0.1",
-    "eslint-plugin-prettier": "^5.2.2",
-    "prettier": "^3.5.3",
+    "@types/node": "^24.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "prettier": "^3.6.2",
     "prettier-eslint": "^16.4.2",
-    "tsx": "^4.19.4",
-    "typescript-eslint": "^8.32.0"
+    "tsx": "^4.20.5",
+    "typescript-eslint": "^8.44.0"
   }
 }
