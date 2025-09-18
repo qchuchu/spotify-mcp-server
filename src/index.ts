@@ -6,15 +6,14 @@ import { getServer } from "./server.js";
 import { config } from "./config.js";
 import { clerkMiddleware } from "@clerk/express";
 import cors from "cors";
-import { protectedResourceHandlerClerk } from "@clerk/mcp-tools/express";
-import { mcpAuthMetadataRouter } from "@modelcontextprotocol/sdk/server/auth/router.js";
+import { authServerMetadataHandlerClerk, mcpAuthClerk, protectedResourceHandlerClerk } from "@clerk/mcp-tools/express";
 
 const app = express();
 app.use(cors({ exposedHeaders: ["WWW-Authenticate"] }));
 app.use(clerkMiddleware());
 app.use(express.json());
 
-app.post("/mcp", async (req: Request, res: Response) => {
+app.post("/mcp", mcpAuthClerk, async (req: Request, res: Response) => {
   try {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
@@ -78,32 +77,7 @@ app.get(
 );
 
 // This is still often needed for clients that implement the older mcp spec
-//app.get("/.well-known/oauth-authorization-server", authServerMetadataHandlerClerk);
-
-app.use(
-  mcpAuthMetadataRouter({
-    oauthMetadata: {
-      issuer: "https://merry-goblin-20.clerk.accounts.dev",
-      authorization_endpoint: "https://merry-goblin-20.clerk.accounts.dev/oauth/authorize",
-      token_endpoint: "https://merry-goblin-20.clerk.accounts.dev/oauth/token",
-      revocation_endpoint: "https://merry-goblin-20.clerk.accounts.dev/oauth/token/revoke",
-      jwks_uri: "https://merry-goblin-20.clerk.accounts.dev/.well-known/jwks.json",
-      registration_endpoint: "https://merry-goblin-20.clerk.accounts.dev/oauth/register",
-      response_types_supported: ["code"],
-      grant_types_supported: ["authorization_code", "refresh_token"],
-      token_endpoint_auth_methods_supported: ["client_secret_basic", "none", "client_secret_post"],
-      scopes_supported: ["openid", "profile", "email", "public_metadata", "private_metadata"],
-      subject_types_supported: ["public"],
-      id_token_signing_alg_values_supported: ["RS256"],
-      claims_supported: ["sub", "iss", "aud", "exp", "iat", "email", "name"],
-      service_documentation: "https://clerk.com/docs/oauth/scoped-access",
-      ui_locales_supported: ["en"],
-      op_tos_uri: "https://clerk.com/legal/standard-terms",
-      code_challenge_methods_supported: ["S256"],
-    },
-    resourceServerUrl: new URL("http://localhost:3000"),
-  }),
-);
+app.get("/.well-known/oauth-authorization-server", authServerMetadataHandlerClerk);
 
 app.listen(config.MCP_HTTP_PORT, (error) => {
   if (error) {
