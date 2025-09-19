@@ -5,10 +5,20 @@ import express, { type Request, type Response } from "express";
 import { getServer } from "./server.js";
 import { config } from "./config.js";
 import { mcpAuthMetadataRouter } from "@modelcontextprotocol/sdk/server/auth/router.js";
+import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
 
 const app = express();
 
-app.post("/mcp", async (req: Request, res: Response) => {
+const authMiddleware = requireBearerAuth({
+  verifier: {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    verifyAccessToken: async (_token) => {
+      throw new Error("Access token verification failed");
+    },
+  },
+});
+
+app.post("/mcp", authMiddleware, async (req: Request, res: Response) => {
   try {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
@@ -72,6 +82,7 @@ app.use(
       token_endpoint: "https://accounts.spotify.com/api/token",
       response_types_supported: ["code"],
       issuer: "http://localhost:3000",
+      scopes_supported: ["user-read-private", "user-read-email"],
     },
     resourceServerUrl: new URL("http://localhost:3000"),
   }),
