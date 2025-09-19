@@ -118,5 +118,142 @@ export const getServer = (): McpServer => {
     },
   );
 
+  server.tool(
+    "create-playlist",
+    "Create a new playlist",
+    {
+      name: z.string().describe("The name of the new playlist"),
+      description: z.string().optional().describe("Optional description for the playlist"),
+      public: z.boolean().optional().default(false).describe("Whether the playlist should be public"),
+      collaborative: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe("Whether the playlist should be collaborative"),
+      tracks: z
+        .array(z.string())
+        .optional()
+        .describe("Track URIs to add to the playlist (spotify:track:xxx format)"),
+    },
+    async ({ name, description, public: isPublic, collaborative, tracks }, { authInfo }): Promise<CallToolResult> => {
+      try {
+        const client = await createSpotifyClient(authInfo);
+        const user = await client.currentUser.profile();
+        const playlist = await client.playlists.createPlaylist(user.id, {
+          name,
+          description: description || "",
+          public: isPublic,
+          collaborative,
+        });
+
+        if (tracks && tracks.length > 0) {
+          await client.playlists.addItemsToPlaylist(playlist.id, tracks);
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  message: "Playlist created successfully",
+                  playlist: {
+                    id: playlist.id,
+                    name: playlist.name,
+                    description: playlist.description,
+                    public: playlist.public,
+                    collaborative: playlist.collaborative,
+                    tracks_added: tracks?.length || 0,
+                  },
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: error instanceof Error ? error.message : "Unknown error occurred",
+            },
+          ],
+        };
+      }
+    },
+  );
+
+  server.tool(
+    "update-playlist",
+    "Update an existing playlist (add/remove tracks)",
+    {
+      playlistId: z.string().describe("The ID of the playlist to modify"),
+      addTracks: z
+        .array(z.string())
+        .optional()
+        .describe("Track URIs to add to the playlist (spotify:track:xxx format)"),
+      removeTracks: z
+        .array(z.string())
+        .optional()
+        .describe("Track URIs to remove from the playlist (spotify:track:xxx format)"),
+    },
+    async ({ playlistId, addTracks, removeTracks }, { authInfo }): Promise<CallToolResult> => {
+      try {
+        const client = await createSpotifyClient(authInfo);
+        const results = [];
+
+        if (addTracks && addTracks.length > 0) {
+          await client.playlists.addItemsToPlaylist(playlistId, addTracks);
+          results.push(`Added ${addTracks.length} tracks`);
+        }
+
+        if (removeTracks && removeTracks.length > 0) {
+          const tracksToRemove = removeTracks.map((uri) => ({ uri }));
+          await client.playlists.removeItemsFromPlaylist(playlistId, { tracks: tracksToRemove });
+          results.push(`Removed ${removeTracks.length} tracks`);
+        }
+
+        if (results.length === 0) {
+          return {
+            content: [
+              {
+                type: "text",
+                text: "No changes specified. Use 'addTracks' or 'removeTracks' parameters to modify the playlist.",
+              },
+            ],
+          };
+        }
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(
+                {
+                  message: "Playlist updated successfully",
+                  playlistId,
+                  changes: results,
+                },
+                null,
+                2,
+              ),
+            },
+          ],
+        };
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: error instanceof Error ? error.message : "Unknown error occurred",
+            },
+          ],
+        };
+      }
+    },
+  );
+
   return server;
 };
