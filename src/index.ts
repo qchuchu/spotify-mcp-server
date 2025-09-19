@@ -4,16 +4,11 @@ import express, { type Request, type Response } from "express";
 
 import { getServer } from "./server.js";
 import { config } from "./config.js";
-import { clerkMiddleware } from "@clerk/express";
-import cors from "cors";
-import { authServerMetadataHandlerClerk, mcpAuthClerk, protectedResourceHandlerClerk } from "@clerk/mcp-tools/express";
+import { mcpAuthMetadataRouter } from "@modelcontextprotocol/sdk/server/auth/router.js";
 
 const app = express();
-app.use(cors({ exposedHeaders: ["WWW-Authenticate"] }));
-app.use(clerkMiddleware());
-app.use(express.json());
 
-app.post("/mcp", mcpAuthClerk, async (req: Request, res: Response) => {
+app.post("/mcp", async (req: Request, res: Response) => {
   try {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
@@ -70,14 +65,17 @@ app.delete("/mcp", async (req: Request, res: Response) => {
   );
 });
 
-app.get(
-  "/.well-known/oauth-protected-resource/mcp",
-  // Specify the scopes that your MCP server needs here
-  protectedResourceHandlerClerk({}),
+app.use(
+  mcpAuthMetadataRouter({
+    oauthMetadata: {
+      authorization_endpoint: "https://accounts.spotify.com/authorize",
+      token_endpoint: "https://accounts.spotify.com/api/token",
+      response_types_supported: ["code"],
+      issuer: "http://localhost:3000",
+    },
+    resourceServerUrl: new URL("http://localhost:3000"),
+  }),
 );
-
-// This is still often needed for clients that implement the older mcp spec
-app.get("/.well-known/oauth-authorization-server", authServerMetadataHandlerClerk);
 
 app.listen(config.MCP_HTTP_PORT, (error) => {
   if (error) {
