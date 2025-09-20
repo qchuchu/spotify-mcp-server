@@ -91,6 +91,7 @@ app.use(
         "user-library-read",
       ],
       code_challenge_methods_supported: ["S256"],
+      token_endpoint_auth_methods_supported: ["client_secret_post"],
     },
     resourceServerUrl: new URL("http://localhost:3000"),
   }),
