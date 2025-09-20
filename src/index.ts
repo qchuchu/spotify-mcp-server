@@ -83,6 +83,7 @@ app.use(
       response_types_supported: ["code"],
       issuer: "http://localhost:3000",
       scopes_supported: ["user-read-private", "user-read-email"],
+      code_challenge_methods_supported: ["S256"],
     },
     resourceServerUrl: new URL("http://localhost:3000"),
   }),
