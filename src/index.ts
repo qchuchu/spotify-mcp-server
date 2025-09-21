@@ -7,13 +7,35 @@ import { config } from "./config.js";
 import { mcpAuthMetadataRouter } from "@modelcontextprotocol/sdk/server/auth/router.js";
 import { requireBearerAuth } from "@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js";
 
+const NEEDED_SCOPES = [
+  "user-read-email",
+  "playlist-modify-public",
+  "playlist-modify-private",
+  "playlist-read-private",
+  "user-read-private",
+  "user-library-read",
+];
+
 const app = express();
 
 const authMiddleware = requireBearerAuth({
   verifier: {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    verifyAccessToken: async (_token) => {
-      throw new Error("Access token verification failed");
+    verifyAccessToken: async (token) => {
+      const currentUser = await fetch("https://api.spotify.com/v1/me", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!currentUser.ok) {
+        throw new Error(`Spotify token verification failed: ${currentUser.status} ${currentUser.statusText}`);
+      }
+      return {
+        scopes: NEEDED_SCOPES,
+        token,
+        clientId: config.SPOTIFY_CLIENT_ID,
+        expiresAt: Math.floor(Date.now() / 1000) + 3600,
+      };
     },
   },
 });
@@ -81,29 +103,28 @@ app.use(
       authorization_endpoint: "https://accounts.spotify.com/authorize",
       token_endpoint: "https://accounts.spotify.com/api/token",
       response_types_supported: ["code"],
-      issuer: "http://localhost:3000",
-      scopes_supported: [
-        "user-read-email",
-        "playlist-modify-public",
-        "playlist-modify-private",
-        "playlist-read-private",
-        "user-read-private",
-        "user-library-read",
-      ],
+      issuer: config.MCP_HTTP_URL,
+      scopes_supported: NEEDED_SCOPES,
       code_challenge_methods_supported: ["S256"],
       token_endpoint_auth_methods_supported: ["client_secret_post"],
     },
-    resourceServerUrl: new URL("http://localhost:3000"),
+    resourceServerUrl: new URL(config.MCP_HTTP_URL),
   }),
 );
 
-app.listen(config.MCP_HTTP_PORT, (error) => {
+const listenCallback = (error: Error | undefined) => {
   if (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
   }
   console.log(`MCP Streamable HTTP Server listening on port ${config.MCP_HTTP_PORT}`);
-});
+};
+
+if (config.MCP_HTTP_HOST) {
+  app.listen(config.MCP_HTTP_PORT, config.MCP_HTTP_HOST, listenCallback);
+} else {
+  app.listen(config.MCP_HTTP_PORT, listenCallback);
+}
 
 process.on("SIGINT", async () => {
   console.log("Server shutdown complete");

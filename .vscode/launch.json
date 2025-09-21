@@ -1,8 +1,20 @@
 {
-  "version": "0.0.1",
+  "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug MCP Server",
+      "type": "node",
+      "request": "launch",
+      "name": "[Backend] Debug",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev:debug"],
+      "autoAttachChildProcesses": true,
+      "restart": true,
+      "sourceMaps": true,
+      "stopOnEntry": false,
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug MCP Server (Built)",
       "type": "node",
       "request": "launch",
       "program": "${workspaceFolder}/dist/index.js",
