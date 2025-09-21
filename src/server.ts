@@ -25,7 +25,12 @@ export const getServer = (): McpServer => {
       name: "spotify-mcp-server",
       version: "0.0.1",
     },
-    { capabilities: {} },
+    {
+      capabilities: {
+        prompts: {},
+        resources: {},
+      },
+    },
   );
 
   server.tool(
@@ -125,15 +130,8 @@ export const getServer = (): McpServer => {
       name: z.string().describe("The name of the new playlist"),
       description: z.string().optional().describe("Optional description for the playlist"),
       public: z.boolean().optional().default(false).describe("Whether the playlist should be public"),
-      collaborative: z
-        .boolean()
-        .optional()
-        .default(false)
-        .describe("Whether the playlist should be collaborative"),
-      tracks: z
-        .array(z.string())
-        .optional()
-        .describe("Track URIs to add to the playlist (spotify:track:xxx format)"),
+      collaborative: z.boolean().optional().default(false).describe("Whether the playlist should be collaborative"),
+      tracks: z.array(z.string()).optional().describe("Track URIs to add to the playlist (spotify:track:xxx format)"),
     },
     async ({ name, description, public: isPublic, collaborative, tracks }, { authInfo }): Promise<CallToolResult> => {
       try {
