@@ -16,7 +16,7 @@
     "dev": "tsx watch --env-file=.env src/index.ts",
     "dev:debug": "tsx watch --env-file=.env src/index.ts --inspect-brk",
     "start": "node dist/index.js",
-    "inspector": "HOST=127.0.0.1 ALLOWED_ORIGINS=http://127.0.0.1:6274 mcp-inspector http://127.0.0.1:3000/mcp"
+    "inspector": "dotenv -- mcp-inspector http://127.0.0.1:3000/mcp"
   },
   "dependencies": {
     "@clerk/express": "^1.7.31",
@@ -25,6 +25,7 @@
     "@spotify/web-api-ts-sdk": "^1.2.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
+    "dotenv-cli": "^10.0.0",
     "dotenv-expand": "^12.0.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
