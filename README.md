@@ -1,22 +1,30 @@
-# Alpic MCP Template
+# Spotify MCP Server
 
-A TypeScript template for building MCP servers using Streamable HTTP transport.
+An unofficial Spotify MCP server that provides access to Spotify's Web API through the Model Context Protocol.
 
 ## Overview
 
-This template provides a foundation for creating MCP servers that can communicate with AI assistants and other MCP clients. It includes a simple HTTP server implementation with example tools, resource & prompts to help you get started building your own MCP integrations.
+This MCP server allows AI assistants to interact with Spotify's Web API, enabling functionality like searching for music, managing playlists, controlling playback, and more. The server is hosted at https://spotify-mcp-server-3664f81c.alpic.live/ for easy integration.
 
 ## Prerequisites
 
 - Node.js 22+ (see `.nvmrc` for exact version)
+- Spotify Developer Account and App (for local development)
 
 ## Installation
+
+### For MCP Client Integration
+
+For easy installation in Claude Desktop or other MCP clients, follow the installation guide:
+https://mcp-install-instructions.alpic.cloud/servers/spotify-unofficial
+
+### For Local Development
 
 1. Clone the repository:
 
 ```bash
 git clone <repository-url>
-cd mcp-server-template
+cd spotify-mcp-server
 ```
 
 2. Install dependencies:
@@ -25,11 +33,20 @@ cd mcp-server-template
 npm install
 ```
 
-3. Create environment file:
+3. Set up Spotify App:
+   - Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+   - Create a new app
+   - Note your Client ID and Client Secret
+   - Add `http://localhost:3000/callback` to your app's redirect URIs
+
+4. Create environment file:
 
 ```bash
 cp .env.example .env
 ```
+
+5. Update `.env` with your Spotify credentials:
+   - `SPOTIFY_CLIENT_ID=your_client_id_here`
 
 ## Usage
 
