@@ -1,7 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { type CallToolResult } from "@modelcontextprotocol/sdk/types.js";
-import { type MaxInt } from "@spotify/web-api-ts-sdk";
+import { type MaxInt, type PartialSearchResult } from "@spotify/web-api-ts-sdk";
 import { createSpotifyClient } from "./utils.js";
 
 const queryDescription = `
@@ -23,7 +23,15 @@ export const getServer = (): McpServer => {
   const server = new McpServer(
     {
       name: "spotify-mcp-server",
+      title: "Spotify MCP Server",
       version: "0.0.1",
+      icons: [
+        {
+          src: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/1200px-Spotify_logo_without_text.svg.png",
+          mimeType: "image/png",
+          sizes: "1200x1200",
+        },
+      ],
     },
     {
       capabilities: {
@@ -71,19 +79,64 @@ export const getServer = (): McpServer => {
     "Search Resources in Spotify",
     {
       query: z.string().describe(queryDescription),
-      type: z
+      types: z
         .array(z.enum(["album", "artist", "track", "playlist", "show", "episode", "audiobook"]))
         .min(1)
         .describe("The types of resources to search for"),
     },
-    async ({ query, type }, { authInfo }): Promise<CallToolResult> => {
+    async ({ query, types }, { authInfo }): Promise<CallToolResult> => {
       const client = await createSpotifyClient(authInfo);
-      const results = await client.search(query, type);
+      const results = await client.search(query, types);
+
+      const answer: Partial<Record<keyof PartialSearchResult, unknown[]>> = {};
+
+      for (const type of types) {
+        const pluralType = (type + "s") as keyof PartialSearchResult;
+        if (pluralType === "albums") {
+          answer[pluralType] = results[pluralType]?.items.map(({ id, name, artists, uri }) => ({
+            id,
+            name,
+            uri,
+            artists: artists.map(({ id, name, uri }) => ({ id, name, uri })),
+          }));
+        } else if (pluralType === "artists") {
+          answer[pluralType] = results[pluralType]?.items.map(({ id, name, uri }) => ({ id, name, uri }));
+        } else if (pluralType === "tracks") {
+          answer[pluralType] = results[pluralType]?.items.map(({ id, name, artists, album, uri }) => ({
+            id,
+            name,
+            artists: artists.map(({ id, name, uri }) => ({ id, name, uri })),
+            uri,
+            album: { id: album.id, name: album.name },
+          }));
+        } else if (pluralType === "playlists") {
+          answer[pluralType] = results[pluralType]?.items.map(({ id, name, owner, uri }) => ({
+            id,
+            name,
+            owner: { id: owner.id, name: owner.display_name },
+            uri,
+          }));
+        } else if (pluralType === "shows" || pluralType === "episodes") {
+          answer[pluralType] = results[pluralType]?.items.map(({ id, name, uri }) => ({
+            id,
+            name,
+            uri,
+          }));
+        } else if (pluralType === "audiobooks") {
+          answer[pluralType] = results[pluralType]?.items.map(({ id, name, authors, uri }) => ({
+            id,
+            name,
+            authors: authors.map(({ name }) => ({ name })),
+            uri,
+          }));
+        }
+      }
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(results, null, 2),
+            text: JSON.stringify(answer),
           },
         ],
       };
@@ -102,11 +155,22 @@ export const getServer = (): McpServer => {
         const client = await createSpotifyClient(authInfo);
         const savedTracks = await client.currentUser.tracks.savedTracks(limit as MaxInt<50>, offset);
 
+        const formattedResults = savedTracks.items.map(({ track: { id, name, artists, album } }) => ({
+          id,
+          type: "track",
+          name,
+          artists: artists.map(({ id, name }) => ({ id, name })),
+          album: {
+            id: album.id,
+            name: album.name,
+          },
+        }));
+
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(savedTracks.items, null, 2),
+              text: JSON.stringify(formattedResults),
             },
           ],
         };
@@ -152,21 +216,17 @@ export const getServer = (): McpServer => {
           content: [
             {
               type: "text",
-              text: JSON.stringify(
-                {
-                  message: "Playlist created successfully",
-                  playlist: {
-                    id: playlist.id,
-                    name: playlist.name,
-                    description: playlist.description,
-                    public: playlist.public,
-                    collaborative: playlist.collaborative,
-                    tracks_added: tracks?.length || 0,
-                  },
+              text: JSON.stringify({
+                message: "Playlist created successfully",
+                playlist: {
+                  id: playlist.id,
+                  name: playlist.name,
+                  description: playlist.description,
+                  public: playlist.public,
+                  collaborative: playlist.collaborative,
+                  tracks_added: tracks?.length || 0,
                 },
-                null,
-                2,
-              ),
+              }),
             },
           ],
         };
