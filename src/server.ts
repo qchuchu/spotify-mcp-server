@@ -223,6 +223,7 @@ export const getServer = (): McpServer => {
                   name: playlist.name,
                   description: playlist.description,
                   public: playlist.public,
+                  uri: playlist.href,
                   collaborative: playlist.collaborative,
                   tracks_added: tracks?.length || 0,
                 },
